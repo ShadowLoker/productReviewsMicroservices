@@ -29,7 +29,8 @@ public class ProductRestController {
     }
 
     @PostMapping("/products")
-    public void createProduct(@RequestBody ProductListWeb product) {
-        productService.createProduct(new Product(product.getName(),product.getDescription()));
+    public ProductListWeb createProduct(@RequestBody ProductListWeb product) {
+        var newProduct = productService.createProduct(new Product(product.getName(),product.getDescription()));
+        return new ProductListWeb(newProduct.getId(),newProduct.getName(),newProduct.getDescription());
     }
 }

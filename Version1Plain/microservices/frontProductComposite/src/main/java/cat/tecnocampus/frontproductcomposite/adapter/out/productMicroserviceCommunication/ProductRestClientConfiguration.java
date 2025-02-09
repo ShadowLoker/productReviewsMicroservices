@@ -19,7 +19,7 @@ public class ProductRestClientConfiguration {
     }
 
 
-    @Bean
+    @Bean("productRestClient")
     public RestClient restClient() {
         return RestClient.builder()
                 .baseUrl(productServiceUrl)

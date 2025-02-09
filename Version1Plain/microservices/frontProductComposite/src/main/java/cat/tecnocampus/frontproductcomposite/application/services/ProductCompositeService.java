@@ -2,29 +2,42 @@ package cat.tecnocampus.frontproductcomposite.application.services;
 
 import cat.tecnocampus.frontproductcomposite.application.ports.in.ProductCompositeCRUD;
 import cat.tecnocampus.frontproductcomposite.application.ports.out.productMicroserviceCommunication.ProductMicroserviceCommunication;
+import cat.tecnocampus.frontproductcomposite.application.ports.out.reviewMicroserviceCommunication.ReviewMicroserviceCommunication;
 
 import java.util.List;
 import java.util.Optional;
 
 public class ProductCompositeService implements ProductCompositeCRUD {
     private final ProductMicroserviceCommunication productMicroserviceCommunication;
+    private final ReviewMicroserviceCommunication reviewMicroserviceCommunication;
 
-    public ProductCompositeService(ProductMicroserviceCommunication productMicroserviceCommunication) {
+    public ProductCompositeService(ProductMicroserviceCommunication productMicroserviceCommunication, ReviewMicroserviceCommunication reviewMicroserviceCommunication) {
         this.productMicroserviceCommunication = productMicroserviceCommunication;
+        this.reviewMicroserviceCommunication = reviewMicroserviceCommunication;
     }
 
     @Override
     public List<ProductComposite> getProducts() {
-        return productMicroserviceCommunication.getProducts();
+        var products = productMicroserviceCommunication.getProducts();
+        products.forEach(product -> product.setReviews(reviewMicroserviceCommunication.getReviewsFromProduct(product.getId())));
+        return products;
     }
 
     @Override
     public Optional<ProductComposite> getProduct(long id) {
-        return productMicroserviceCommunication.getProduct(id);
+        var product = productMicroserviceCommunication.getProduct(id);
+        return product.map(p -> {
+            p.setReviews(reviewMicroserviceCommunication.getReviewsFromProduct(p.getId()));
+            return p;
+        });
     }
 
     @Override
     public ProductComposite createProduct(ProductComposite product) {
-        return productMicroserviceCommunication.createProduct(product);
+        var newProduct = productMicroserviceCommunication.createProduct(product);
+        product.getReviews()
+                .forEach(review -> {review.setProductId(newProduct.getId());
+                    reviewMicroserviceCommunication.createReview(review);});
+        return newProduct;
     }
 }

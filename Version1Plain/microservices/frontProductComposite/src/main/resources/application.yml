@@ -23,6 +23,9 @@ app:
   product-service:
     host: localhost
     port: 8001
+  review-service:
+    host: localhost
+    port: 8002
 
 ---
 spring.config.activate.on-profile: docker
@@ -31,6 +34,9 @@ spring.datasource.url: jdbc:mysql://mysql:3306/microservices-db
 app:
   product-service:
     host: product-service
+    port: 8080
+  review-service:
+    host: review-service
     port: 8080
 
 
