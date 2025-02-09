@@ -46,8 +46,8 @@ and uncoupled of the others. In a microservice architecture, the DRY principle o
 
 In our case, classes such as 'Review', 'ProductListWeb', 'ReviewListWeb' are repeated with the same exact code in the several services. In a real 
 world scenario, when the use cases become more complex, these classes are likely to diverge and evolve differently in each service.
----
 
+---
 ## Database Design
 
 While microservices are typically designed to have independent databases, this example simplifies the setup by using a single **MySQL database** 
