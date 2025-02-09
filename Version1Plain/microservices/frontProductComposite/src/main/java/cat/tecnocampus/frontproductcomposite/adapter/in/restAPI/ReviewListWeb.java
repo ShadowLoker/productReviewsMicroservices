@@ -2,7 +2,6 @@ package cat.tecnocampus.frontproductcomposite.adapter.in.restAPI;
 
 public class ReviewListWeb {
     private long id;
-    private long productId;
     private String author;
     private String content;
     private int rating;
@@ -10,8 +9,8 @@ public class ReviewListWeb {
     public ReviewListWeb() {
     }
 
-    public ReviewListWeb(long productId, String author, String content, int rating) {
-        this.productId = productId;
+    public ReviewListWeb(long id, String author, String content, int rating) {
+        this.id = id;
         this.author = author;
         this.content = content;
         this.rating = rating;
@@ -39,14 +38,6 @@ public class ReviewListWeb {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public long getProductId() {
-        return productId;
-    }
-
-    public void setProductId(long productId) {
-        this.productId = productId;
     }
 
     public int getRating() {

@@ -4,29 +4,6 @@ GET http://localhost:8002/reviews/product/2
 ###
 GET http://localhost:8002/reviews/2
 
-###
-POST http://localhost:8001/products
-content-type: application/json
 
-{
-    "name": "Product 1",
-    "description": "Product 1 description"
-}
+### Not possible to test with dockers
 
-
-### To use with dockers
-
-###
-GET http://localhost:8080/products
-
-###
-GET http://localhost:8080/products/1
-
-###
-POST http://localhost:8080/products
-content-type: application/json
-
-{
-  "name": "Product 1",
-  "description": "Product 1 description"
-}

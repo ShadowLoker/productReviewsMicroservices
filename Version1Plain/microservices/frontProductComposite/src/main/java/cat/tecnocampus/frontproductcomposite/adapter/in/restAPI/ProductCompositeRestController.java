@@ -2,7 +2,7 @@ package cat.tecnocampus.frontproductcomposite.adapter.in.restAPI;
 
 import cat.tecnocampus.frontproductcomposite.application.ports.in.ProductCompositeCRUD;
 import cat.tecnocampus.frontproductcomposite.application.services.ProductComposite;
-import cat.tecnocampus.frontproductcomposite.application.services.Review;
+import cat.tecnocampus.frontproductcomposite.application.services.ProductDoesNotExistException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

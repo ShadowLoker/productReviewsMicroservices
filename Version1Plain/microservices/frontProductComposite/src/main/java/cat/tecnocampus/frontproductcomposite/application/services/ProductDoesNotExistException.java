@@ -1,4 +1,4 @@
-package cat.tecnocampus.frontproductcomposite.adapter.in.restAPI;
+package cat.tecnocampus.frontproductcomposite.application.services;
 
 public class ProductDoesNotExistException extends RuntimeException {
     public ProductDoesNotExistException(long id) {

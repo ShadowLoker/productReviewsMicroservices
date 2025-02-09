@@ -1,5 +1,6 @@
 package cat.tecnocampus.frontproductcomposite.adapter.in.restAPI;
 
+import cat.tecnocampus.frontproductcomposite.application.services.ProductDoesNotExistException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
