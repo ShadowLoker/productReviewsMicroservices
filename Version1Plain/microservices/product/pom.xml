@@ -11,10 +11,10 @@
     <packaging>jar</packaging>
 
     <groupId>cat.tecnocampus</groupId>
-    <artifactId>review</artifactId>
+    <artifactId>product</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>review</name>
-    <description>review</description>
+    <name>product</name>
+    <description>product</description>
     <properties>
         <java.version>21</java.version>
     </properties>
