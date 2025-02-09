@@ -118,17 +118,17 @@ In this version, the `front-product-service` acts as the orchestrator for adding
 - This approach centralizes the orchestration logic in the front-end service, reducing coupling between the `review-service` and `product-service`.
 - However, it introduces additional latency due to the extra call to the `product-service`.
 
-#### **Approach 2: Review Service as Orchestrator**
-An alternative approach would be to delegate the validation and orchestration to the `review-service`. Here’s how it would work:
+#### **Approach 2: Product Service as Orchestrator**
+An alternative approach would be to delegate the validation and orchestration to the `product-service`. Here’s how it would work:
 1. A client sends a **POST request** to the `front-product-service` with the product ID and review details.
-2. The `front-product-service` sends a **POST request** to the `review-service` with the product ID and review details.
-3. The `review-service` validates the product ID by calling the `product-service`.
-    - If the product exists, it adds the review to the database.
+2. The `front-product-service` sends a **POST request** to the `product-service` with the product ID and review details.
+3. The `product-service` validates the product ID.
+    - If the product exists, it sends a **POST request** to the `review-service` with the review details.
     - If the product does not exist, it returns a **404 Not Found** error.
 
 **Key Characteristics**:
-- The `review-service` becomes the orchestrator, taking on the responsibility of validating the product ID.
-- This approach creates a **short chain of calls** between services, increasing coupling between the `review-service` and `product-service`.
+- The `product-service` becomes the orchestrator, taking on the responsibility of validating the product ID.
+- This approach creates a **short chain of calls** between services, increasing coupling between the `product-service` and `review-service`.
 - While it simplifies the role of the `front-product-service`, it is generally not recommended in real-world scenarios due to the tighter coupling 
 and reduced separation of concerns.
 
