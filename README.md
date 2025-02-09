@@ -148,11 +148,11 @@ A third approach is to skip product ID validation entirely. Here’s how it woul
 
 
 #### Comparison 
-| **Approach**                  | **Pros**                                                                 | **Cons**                                                                 |
-|-------------------------------|--------------------------------------------------------------------------|--------------------------------------------------------------------------|
-| **Front-End Orchestration**    | Low coupling, clear separation of concerns                              | Additional latency, front-end service becomes a bottleneck              |
-| **Review Service Orchestration**| Simplifies front-end service logic                                      | Higher coupling, reduced separation of concerns                         |
-| **No Validation**              | High efficiency, resilience to failures                                 | Data inconsistency, requires additional cleanup processes               |
+| **Approach**                       | **Pros**                                                                 | **Cons**                                                                 |
+|------------------------------------|--------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| **Front-End Orchestration**        | Low coupling, clear separation of concerns                              | Additional latency, front-end service becomes a bottleneck              |
+| **Productc Service Orchestration** | Simplifies front-end service logic                                      | Higher coupling, reduced separation of concerns                         |
+| **No Validation**                  | High efficiency, resilience to failures                                 | Data inconsistency, requires additional cleanup processes               |
 
 
 ## References and Further Reading
