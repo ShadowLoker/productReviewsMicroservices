@@ -1,0 +1,97 @@
+###
+GET http://localhost:8000/products
+
+###
+GET http://localhost:8000/products/1
+
+###
+POST http://localhost:8000/products
+content-type: application/json
+
+{
+    "name": "Product 1",
+    "description": "Product 1 description",
+    "reviews": [
+        {
+            "author": "Author 1",
+            "content": "Content 1",
+            "rating": 5
+        },
+        {
+            "author": "Author 2",
+            "content": "Content 2",
+            "rating": 2
+        }
+    ]
+}
+
+###
+POST http://localhost:8000/products/1/reviews
+content-type: application/json
+
+{
+    "author": "Author 3",
+    "content": "Content 3",
+    "rating": 4
+}
+
+###
+POST http://localhost:8000/products/100/reviews
+content-type: application/json
+
+{
+    "author": "Author 3",
+    "content": "Content 3",
+    "rating": 4
+}
+
+
+### To use with dockers
+
+###
+GET http://localhost:8080/products
+
+###
+GET http://localhost:8080/products/5
+
+###
+POST http://localhost:8080/products
+content-type: application/json
+
+{
+  "name": "Product 1",
+  "description": "Product 1 description",
+  "reviews": [
+    {
+      "author": "Author 1",
+      "content": "Content 1",
+      "rating": 5
+    },
+    {
+      "author": "Author 2",
+      "content": "Content 2",
+      "rating": 2
+    }
+  ]
+}
+
+###
+POST http://localhost:8080/products/1/reviews
+content-type: application/json
+
+{
+  "author": "Author 3",
+  "content": "Content 3",
+  "rating": 4
+}
+
+###
+POST http://localhost:8080/products/100/reviews
+content-type: application/json
+
+{
+  "author": "Author 3",
+  "content": "Content 3",
+  "rating": 4
+}
+
