@@ -33,6 +33,29 @@ public class ReviewCommunicationRest implements ReviewMicroserviceCommunication 
     @CircuitBreaker(name = "review", fallbackMethod = "getReviewsFallbackValue")
     public List<Review> getReviewsFromProduct(long productId, int delay, int faultPercent) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        try {
+            // Wait for the CompletableFuture to complete and get the result
+            CompletableFuture<List<Review>> future = timeLimiterCall.getReviewsFromProductTimeLimiter(productId, delay, faultPercent);
+            List<Review> reviews = future.get(); // Blocking call to get the result
+            return reviews;
+        } catch (InterruptedException | ExecutionException e) {
+            // Handle exceptions and return the fallback value
+            System.out.println("Exception " +
+                    e.getMessage() +
+                    " on thread " +
+                    Thread.currentThread().getName() +
+                    " at " +
+                    LocalDateTime.now().format(formatter));
+            return getReviewsFallbackValue(productId, delay, faultPercent, null);
+        }
+    }
+
+    /*
+    @Override
+    @CircuitBreaker(name = "review", fallbackMethod = "getReviewsFallbackValue")
+    public List<Review> getReviewsFromProduct(long productId, int delay, int faultPercent) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         CompletableFuture<List<Review>> results = timeLimiterCall.getReviewsFromProductTimeLimiter(productId, delay, faultPercent);
         AtomicReference<List<Review>> finalResult = new AtomicReference<>(List.of(new Review(0, "time", "time", 5)));
 
@@ -52,6 +75,8 @@ public class ReviewCommunicationRest implements ReviewMicroserviceCommunication 
         });
         return finalResult.get();
     }
+
+     */
 
 
 /*
