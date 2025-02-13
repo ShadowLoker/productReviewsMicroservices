@@ -17,20 +17,25 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 public class ReviewCommunicationRest implements ReviewMicroserviceCommunication {
     private final RestClient restClient;
+    private final TimeLimiterCall timeLimiterCall;
 
-    public ReviewCommunicationRest(@Qualifier("reviewRestClient") RestClient restClient) {
+    public ReviewCommunicationRest(@Qualifier("reviewRestClient") RestClient restClient, TimeLimiterCall timeLimiterCall) {
         this.restClient = restClient;
+        this.timeLimiterCall = timeLimiterCall;
     }
 
     @Override
     @CircuitBreaker(name = "review", fallbackMethod = "getReviewsFallbackValue")
     public List<Review> getReviewsFromProduct(long productId, int delay, int faultPercent) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        CompletableFuture<List<Review>> results = getReviewsFromProductTimeLimiter(productId, delay, faultPercent);
+        CompletableFuture<List<Review>> results = timeLimiterCall.getReviewsFromProductTimeLimiter(productId, delay, faultPercent);
+        AtomicReference<List<Review>> finalResult = new AtomicReference<>(List.of(new Review(0, "time", "time", 5)));
+
         results.whenComplete((result, ex) -> {
             if (ex != null) {
                 System.out.println("Exception " +
@@ -42,22 +47,13 @@ public class ReviewCommunicationRest implements ReviewMicroserviceCommunication 
             }
             if (result != null) {
                 System.out.println(result + " on thread " + Thread.currentThread().getName());
+                finalResult.set(result);
             }
         });
-        return List.of(new Review(0, "time", "time", 5));
+        return finalResult.get();
     }
 
-    @TimeLimiter(name = "review")
-    private CompletableFuture<List<Review>> getReviewsFromProductTimeLimiter (long productId, int delay, int faultPercent) {
-        return CompletableFuture.supplyAsync(
-                () -> restClient.get()
-                        .uri("/product/" + productId + "?delay=" + delay + "&faultPercent=" + faultPercent)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .retrieve()
-                        .body(new ParameterizedTypeReference<List<Review>>() {
-                        })
-        );
-    }
+
 /*
     private CompletionStage<List<Review>> getReviewsFromProductTimeLimiter (long productId, int delay, int faultPercent) {
         return CompletableFuture.supplyAsync(
