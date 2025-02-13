@@ -19,7 +19,7 @@ public class ProductCompositeService implements ProductCompositeCRUD {
     @Override
     public List<ProductComposite> getProducts() {
         var products = productMicroserviceCommunication.getProducts();
-        products.forEach(product -> product.setReviews(reviewMicroserviceCommunication.getReviewsFromProduct(product.getId(), delay, faultPercent)));
+        products.forEach(product -> product.setReviews(reviewMicroserviceCommunication.getReviewsFromProduct(product.getId(), 0, 0)));
         return products;
     }
 

@@ -45,6 +45,8 @@ content-type: application/json
     "rating": 4
 }
 
+###
+GET http://localhost:8000/actuator/health
 
 ### To use with dockers
 

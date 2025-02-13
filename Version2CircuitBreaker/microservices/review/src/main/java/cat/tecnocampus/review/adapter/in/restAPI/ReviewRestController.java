@@ -16,8 +16,11 @@ public class ReviewRestController {
     }
 
     @GetMapping("/reviews/product/{productId}")
-    public List<ReviewListWeb> getReviewsFromProduct(@PathVariable long productId) {
-        return reviewService.getReviewsFromProduct(productId).stream()
+    public List<ReviewListWeb> getReviewsFromProduct(@PathVariable long productId,
+                                                     @RequestParam(value = "delay", required = false, defaultValue = "0") int delay,
+                                                     @RequestParam(value = "faultPercent", required = false, defaultValue = "0") int faultPercent
+    ) {
+        return reviewService.getReviewsFromProduct(productId, delay, faultPercent).stream()
                 .map(r -> new ReviewListWeb(r.getId(),r.getProductId(), r.getAuthor(), r.getContent(), r.getRating())).collect(Collectors.toList());
     }
 
