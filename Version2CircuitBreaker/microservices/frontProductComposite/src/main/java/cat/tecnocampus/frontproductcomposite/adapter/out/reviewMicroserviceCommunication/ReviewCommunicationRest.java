@@ -11,9 +11,12 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 
 @Component
 public class ReviewCommunicationRest implements ReviewMicroserviceCommunication {
@@ -24,20 +27,28 @@ public class ReviewCommunicationRest implements ReviewMicroserviceCommunication 
     }
 
     @Override
-    @TimeLimiter(name = "review")
     @CircuitBreaker(name = "review", fallbackMethod = "getReviewsFallbackValue")
     public List<Review> getReviewsFromProduct(long productId, int delay, int faultPercent) {
-        return CompletableFuture.supplyAsync(
-                () -> restClient.get()
-                        .uri("/product/" + productId + "?delay=" + delay + "&faultPercent=" + faultPercent)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .retrieve()
-                        .body(new ParameterizedTypeReference<List<Review>>() {
-                        })
-        ).get();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        CompletableFuture<List<Review>> results = getReviewsFromProductTimeLimiter(productId, delay, faultPercent);
+        results.whenComplete((result, ex) -> {
+            if (ex != null) {
+                System.out.println("Exception " +
+                        ex.getMessage() +
+                        " on thread " +
+                        Thread.currentThread().getName() +
+                        " at " +
+                        LocalDateTime.now().format(formatter));
+            }
+            if (result != null) {
+                System.out.println(result + " on thread " + Thread.currentThread().getName());
+            }
+        });
+        return List.of(new Review(0, "time", "time", 5));
     }
 
-    private CompletionStage<List<Review>> getReviewsFromProductTimeLimiter (long productId, int delay, int faultPercent) {
+    @TimeLimiter(name = "review")
+    private CompletableFuture<List<Review>> getReviewsFromProductTimeLimiter (long productId, int delay, int faultPercent) {
         return CompletableFuture.supplyAsync(
                 () -> restClient.get()
                         .uri("/product/" + productId + "?delay=" + delay + "&faultPercent=" + faultPercent)
@@ -47,6 +58,18 @@ public class ReviewCommunicationRest implements ReviewMicroserviceCommunication 
                         })
         );
     }
+/*
+    private CompletionStage<List<Review>> getReviewsFromProductTimeLimiter (long productId, int delay, int faultPercent) {
+        return CompletableFuture.supplyAsync(
+                () -> restClient.get()
+                        .uri("/product/" + productId + "?delay=" + delay + "&faultPercent=" + faultPercent)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .retrieve()
+                        .body(new ParameterizedTypeReference<List<Review>>() {
+                        })
+        );
+
+ */
 
     @Override
     public Review createReview(Review review) {

@@ -5,6 +5,9 @@ GET http://localhost:8000/products
 GET http://localhost:8000/products/1
 
 ###
+GET http://localhost:8000/products/1?delay=4000&faultPercent=0
+
+###
 POST http://localhost:8000/products
 content-type: application/json
 
