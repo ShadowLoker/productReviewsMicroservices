@@ -1,6 +1,7 @@
 package cat.tecnocampus.frontproductcomposite.adapter.out.reviewMicroserviceCommunication;
 
 import cat.tecnocampus.frontproductcomposite.application.services.Review;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
@@ -12,16 +13,17 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Component
-public class TimeLimiterCall {
+public class TimeLimiterCircuitBreakerCall {
     private final RestClient restClient;
 
-    public TimeLimiterCall(@Qualifier("reviewRestClient") RestClient restClient) {
+    public TimeLimiterCircuitBreakerCall(@Qualifier("reviewRestClient") RestClient restClient) {
         this.restClient = restClient;
     }
 
 
     @TimeLimiter(name = "review")
-    public CompletableFuture<List<Review>> getReviewsFromProductTimeLimiter (long productId, int delay, int faultPercent) {
+    @CircuitBreaker(name = "review", fallbackMethod = "getReviewsFallbackValueCircuitBreaker")
+    public CompletableFuture<List<Review>> getReviewsFromProduct(long productId, int delay, int faultPercent) {
         return CompletableFuture.supplyAsync(
                 () -> restClient.get()
                         .uri("/product/" + productId + "?delay=" + delay + "&faultPercent=" + faultPercent)
@@ -31,4 +33,10 @@ public class TimeLimiterCall {
                         })
         );
     }
+
+    private CompletableFuture<List<Review>> getReviewsFallbackValueCircuitBreaker(long productId, int delay, int faultPercent, Throwable e) {
+        return CompletableFuture.completedFuture(List.of(new Review(0, "Circuit breaker fallback", "CB fallback", 5)));
+    }
+
+
 }

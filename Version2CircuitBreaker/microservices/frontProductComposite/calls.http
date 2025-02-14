@@ -4,8 +4,17 @@ GET http://localhost:8000/products
 ###
 GET http://localhost:8000/products/1
 
+### get reviews with a delay of 7 seconds. Time limiter is set to 2 seconds
+GET http://localhost:8000/products/1?delay=7000
+
+
+### get reviews with % of failure
+GET http://localhost:8000/products/1?faultPercent=90
+
+
 ###
-GET http://localhost:8000/products/1?delay=7000&faultPercent=0
+GET http://localhost:8000/actuator/health
+
 
 ###
 POST http://localhost:8000/products

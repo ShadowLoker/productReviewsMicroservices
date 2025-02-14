@@ -2,11 +2,7 @@ package cat.tecnocampus.frontproductcomposite.adapter.out.reviewMicroserviceComm
 
 import cat.tecnocampus.frontproductcomposite.application.ports.out.reviewMicroserviceCommunication.ReviewMicroserviceCommunication;
 import cat.tecnocampus.frontproductcomposite.application.services.Review;
-import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -15,28 +11,25 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 public class ReviewCommunicationRest implements ReviewMicroserviceCommunication {
     private final RestClient restClient;
-    private final TimeLimiterCall timeLimiterCall;
+    private final TimeLimiterCircuitBreakerCall timeLimiterCircuitBreakerCall;
 
-    public ReviewCommunicationRest(@Qualifier("reviewRestClient") RestClient restClient, TimeLimiterCall timeLimiterCall) {
+    public ReviewCommunicationRest(@Qualifier("reviewRestClient") RestClient restClient, TimeLimiterCircuitBreakerCall timeLimiterCircuitBreakerCall) {
         this.restClient = restClient;
-        this.timeLimiterCall = timeLimiterCall;
+        this.timeLimiterCircuitBreakerCall = timeLimiterCircuitBreakerCall;
     }
 
     @Override
-    @CircuitBreaker(name = "review", fallbackMethod = "getReviewsFallbackValue")
     public List<Review> getReviewsFromProduct(long productId, int delay, int faultPercent) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         try {
             // Wait for the CompletableFuture to complete and get the result
-            CompletableFuture<List<Review>> future = timeLimiterCall.getReviewsFromProductTimeLimiter(productId, delay, faultPercent);
+            CompletableFuture<List<Review>> future = timeLimiterCircuitBreakerCall.getReviewsFromProduct(productId, delay, faultPercent);
             List<Review> reviews = future.get(); // Blocking call to get the result
             return reviews;
         } catch (InterruptedException | ExecutionException e) {
@@ -47,50 +40,10 @@ public class ReviewCommunicationRest implements ReviewMicroserviceCommunication 
                     Thread.currentThread().getName() +
                     " at " +
                     LocalDateTime.now().format(formatter));
-            return getReviewsFallbackValue(productId, delay, faultPercent, null);
+            return getReviewsFallbackValueTimeLimiter(productId, delay, faultPercent, e);
         }
     }
 
-    /*
-    @Override
-    @CircuitBreaker(name = "review", fallbackMethod = "getReviewsFallbackValue")
-    public List<Review> getReviewsFromProduct(long productId, int delay, int faultPercent) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        CompletableFuture<List<Review>> results = timeLimiterCall.getReviewsFromProductTimeLimiter(productId, delay, faultPercent);
-        AtomicReference<List<Review>> finalResult = new AtomicReference<>(List.of(new Review(0, "time", "time", 5)));
-
-        results.whenComplete((result, ex) -> {
-            if (ex != null) {
-                System.out.println("Exception " +
-                        ex.getMessage() +
-                        " on thread " +
-                        Thread.currentThread().getName() +
-                        " at " +
-                        LocalDateTime.now().format(formatter));
-            }
-            if (result != null) {
-                System.out.println(result + " on thread " + Thread.currentThread().getName());
-                finalResult.set(result);
-            }
-        });
-        return finalResult.get();
-    }
-
-     */
-
-
-/*
-    private CompletionStage<List<Review>> getReviewsFromProductTimeLimiter (long productId, int delay, int faultPercent) {
-        return CompletableFuture.supplyAsync(
-                () -> restClient.get()
-                        .uri("/product/" + productId + "?delay=" + delay + "&faultPercent=" + faultPercent)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .retrieve()
-                        .body(new ParameterizedTypeReference<List<Review>>() {
-                        })
-        );
-
- */
 
     @Override
     public Review createReview(Review review) {
@@ -101,7 +54,7 @@ public class ReviewCommunicationRest implements ReviewMicroserviceCommunication 
                 .body(Review.class); // Deserialize the response to ProductCompositereturn null;
     }
 
-    private List<Review> getReviewsFallbackValue(long productId, int delay, int faultPercent, CallNotPermittedException e) {
-        return List.of(new Review(0, "fallback", "fallback", 5));
+    private List<Review> getReviewsFallbackValueTimeLimiter(long productId, int delay, int faultPercent, Exception e) {
+        return List.of(new Review(0, "Time Limiter fallback", "TL fallback", 5));
     }
 }
