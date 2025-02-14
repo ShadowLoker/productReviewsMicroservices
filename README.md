@@ -155,6 +155,23 @@ A third approach is to skip product ID validation entirely. Here’s how it woul
 | **No Validation**                  | High efficiency, resilience to failures                                 | Data inconsistency, requires additional cleanup processes               |
 
 
+---
+
+## Version 2: Time Limiter and Circuit Breaker
+This version introduces a **time limiter** and **circuit breaker** to improve the resilience of the system. These patterns help prevent cascading failures and provide fallback mechanisms 
+when services are unavailable.
+
+We introduced two parameters in the get one single product (with its reviews) endpoint: `delay` and `failure`. The `delay` parameter simulates a delay in the response, 
+while the `failure` parameter simulates a failure in the review service by returning a **500 Internal Server Error** the percentage of times specified in the parameter.
+Changes are added into the ReviewService and into the front-product-service, at the adapter that retrieves the reviews.
+
+In the calls.http file, you can see how to test the new endpoint with the new parameters. Try calling serveral times with delay or failures to see how the circuit breaker 
+opens. Once opened, the circuit breaker will not allow any more requests to the review service until the timeout is reached. You can see that going to the
+Review Service console to see the logs. You will notice that it will not receive any more requests until the circuit breaker timeout is reached.
+
+You can also see the circuit breaker status by calling the actuator endpoint: `http://localhost:8080/actuator/health/circuitBreakers
+
+
 ## References and Further Reading
 This example is inspired by the book **"Microservices with Spring Boot 3 and Spring Cloud, Third Edition. Magnus Larson. Ed. Packt"** and its accompanying GitHub repository:
 - [GitHub Repository](https://github.com/PacktPublishing/Microservices-with-Spring-Boot-and-Spring-Cloud-Third-Edition/tree/SB3.2)

@@ -13,7 +13,7 @@ GET http://localhost:8000/products/1?faultPercent=90
 
 
 ###
-GET http://localhost:8000/actuator/health
+GET http://localhost:8000/actuator/health/circuitBreakers
 
 
 ###
